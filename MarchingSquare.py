@@ -12,7 +12,7 @@ The following algorithm was modified to compute the number of full and partial s
 '''
 
 import numpy as np
-
+import math
     
 class MarchingSquareHandler:
     
@@ -44,8 +44,37 @@ class MarchingSquareHandler:
         
     #define Scalar Function (Circle)
     def scalarFunc(self,x,y,r): # a circle
-        return (x-200)**2 + (y-200)**2 - r**2
-    
+        return x**2+y**2-r**2
+        #return x+y-r
+        #return (2*x)+y-r
+ 
+    def scalarFunc3(self,x,r): # a circle
+        return (r**2-x**2)**(1.0/2.0)
+	#return r-(2*x)
+	#return r-(x)
+
+    #define function 1-cos(r)
+    #here return isovalue for each point in marching squares
+
+#    def scalarFunc2(self,r,y):
+    	#tmp = math.exp(r) # e^r
+	#tmp = 1.0-math.cos(r) # 1-cos(r)
+	#tmp = r #r^2; could have used r**2 but either should give the same answer one less character to type
+	#print "tmp"
+	#print tmp
+	#print "Y"
+	#print y
+	#print "rad"
+	#print r
+	#if y < tmp:
+	#    value = -1.0
+	#elif y == tmp:
+	#    value = 0.0
+	#else:
+	#   value = 1.0
+	#return value
+	#return (1-math.cos(r))
+   
     #check if scalar function intersects
     def checkifIntersects(self,_val):
         if _val[0] > 0 and _val[1] > 0 and _val[2] > 0 and _val[3] > 0:
@@ -63,71 +92,105 @@ class MarchingSquareHandler:
 
     #get the partial squares that intersects with curve or function.
     def countpartial(self,_val):
-#        cc = 0
-#	if _val[0] <= 0 :
-#	    cc = cc + 1 
-#	if _val[1] <= 0 :
-#	    cc = cc + 1
-#	if _val[2] <= 0 :
-#	    cc = cc + 1
-#	if _val[3] <= 0 :
-#	    cc = cc + 1  	 
-#  	if _val[0] > 0 and _val[1] > 0 and _val[2] > 0 and _val[3] > 0:
-#    	    cc = 0
-#            return cc
-#        if _val[0] < 0 and _val[1] < 0 and _val[2] < 0 and _val[3] < 0:
-#	    cc = 0
-#	    return cc
-#	else:
-#	    return cc
         if _val[0] > 0 and _val[1] > 0 and _val[2] > 0 and _val[3] > 0:
             return 0
-        elif _val[0] * _val[1] < 0 or _val[1] * _val[2] < 0 or _val[2] * _val[3] < 0 or _val[3] * _val[0] < 0 :
+        elif _val[0] == 0 and _val[1] == 0 and _val[2] == 0 and _val[3] == 0 :
+            return 0
+        elif _val[0] < 0 or _val[1] < 0 or _val[2] < 0 or _val[3] < 0 :
             return 1
         else:
             return 0
-
 
 
     #Get the intersected indexs
     def getIntersects(self,_val):
         index=[]
         if _val[0] * _val[1] < 0:
+        #if ( _val[0] == 0 or _val[1] == 0 ) and _val[0] * _val[1] <= 0:
             index.append([0,1])
         if _val[1] * _val[2] < 0:
+        #if ( _val[1] == 0 or _val[2] == 0 ) and _val[1] * _val[2] <= 0:
             index.append([1,2])
         if _val[2] * _val[3] < 0:
+        #if ( _val[2] == 0 or _val[3] == 0 ) and _val[2] * _val[3] <= 0:
             index.append([2,3])
         if _val[3] * _val[0] < 0:
+        #if ( _val[3] == 0 or _val[0] == 0 ) and _val[3] * _val[0] <= 0:
             index.append([3,0])
         return index
         
     #Compute Scalar Values
     def compSval(self):
+	textfile=open('isovalue.dat',"w")
+        textfile.write('#x    y \n')
+        #textfile.write('x    y isovalue \n')
+	#posline = '{0} {1} {2}\n'.format(L,L,L)
+        #textfile.write(posline)
         lenY = len(np.arange(0,self.winHeight,self.gridSize))
+	lenY = lenY + 1
         lenX = len(np.arange(0,self.winWidth,self.gridSize))
+	lenX = lenX + 1
+        #lenX = len(np.arange(0,self.radius,self.gridSize))
+	#print ("lenX lenY")
+	#print(lenX, lenY)
         for y in range(lenY):
-            for x in range(lenX):
+            for x in range(lenX):		
                 self._scVal[x][y] = self.scalarFunc(self.gridSize*x,self.gridSize*y,self.radius)
+                #self._scVal[x][y] = self.scalarFunc2(self.gridSize*x,self.gridSize*y)
         	##compute the isovalues
-  		#print(x,y,self._scVal[x][y])
+  		#print(self.gridSize*x,self.gridSize*y,self._scVal[x][y])
+		if self._scVal[x][y] == 0.000000:
+ 		    posline = '{0} {1}\n'.format(self.gridSize*x,self.gridSize*y)
+        	    textfile.write(posline)
+ 		    #posline = '{0} {1} {2}\n'.format(self.gridSize*x,self.gridSize*y,self._scVal[x][y])
+        	    #textfile.write(posline)
+		#print(self.gridSize*x, self.gridSize*y)
+
+
+    #Compute Scalar Values
+    def compSval2(self):
+	areaTR=float(0)
+        lenY = len(np.arange(0,self.winHeight,self.gridSize))
+	lenY = lenY + 1
+        lenX = len(np.arange(0,self.winWidth,self.gridSize))
+	lenX = lenX + 1
+	print("number of Trap")
+	print(lenX-1)
+	tmp = np.zeros(((self.winWidth/self.gridSize)+1))
+        for x in range(lenX):
+            tmp[x] = self.scalarFunc3(self.gridSize*x,self.radius)
+    	    print("x tmp[x]")
+	    print(x, tmp[x])
+	Trap=lenX-1
+	for ta in range(Trap):
+	    if tmp[ta] > 0.0:
+	    	areaTR = areaTR +((tmp[ta]+tmp[ta+1])/2.0)*self.gridSize
+	print("Area of Trap Rule")
+	print(areaTR)
+
 
 
     #Find the intersection Point
     def intersectionPoint(self,p1,p2,isoValue,v1,v2):
         _p=[0,0]
         _p[0] = p1[0] + (isoValue - v1)*(p2[0] - p1[0] ) / (v2-v1)
-        _p[1] = p1[1] + (isoValue - v1)*(p2[1] - p1[1] ) / (v2-v1)
+        _p[1] = p1[1] + (isoValue - v2)*(p2[1] - p1[1] ) / (v2-v1)
+	#print (_p[0],_p[1]) 
         return _p
         
     #Get all the Data about square
-    def getSquareData(self,n): #returns sqaures sv and vertices
-        r=n/((self.winHeight/self.gridSize)-2)
-        c=n%((self.winHeight/self.gridSize)-2)
+    def getSquareData(self,n): #returns squares sv and vertices
+        #r=n/((self.winHeight/self.gridSize)-2)
+        #c=n%((self.winHeight/self.gridSize)-2)
+        r=n/((self.winHeight/self.gridSize)-1)
+        c=n%((self.winHeight/self.gridSize)-1)
+	#print("squares and vertices")
+	#print(r, c)
         sv=[self._scVal[r][c],self._scVal[r][c+1],self._scVal[r+1][c+1],self._scVal[r+1][c]]
         vertices =[[self.gridSize*r,self.gridSize*c],[self.gridSize*r,self.gridSize*(c+1)],[self.gridSize*(r+1),self.gridSize*(c+1)],[self.gridSize*(r+1),self.gridSize*c]]    
         return [sv,vertices]
-        
+	
+	        
     #Check if Zero
     def checkSingularity(self,sv):
         found=False
@@ -138,17 +201,16 @@ class MarchingSquareHandler:
                 index.append(i)
         return [found,index]
     
-#    Compute area of partial squares
-#    def calculateside1(self,val,p1,p2)
-#	tmpa = 0.0
-#	tmpb = 0.0
-#	if (_val[0] <= 0)
-
 
     #Computes the line list
     def compute(self):
-        self._scVal = np.zeros(((self.winWidth/self.gridSize),(self.winHeight/self.gridSize)))
-        _nSquare = ((self.winHeight/self.gridSize)-2)*((self.winWidth/self.gridSize)-2)
+        self._scVal = np.zeros(((self.winWidth/self.gridSize)+1,(self.winHeight/self.gridSize)+1))
+        _nSquare = ((self.winHeight/self.gridSize)-1)*((self.winWidth/self.gridSize)-1)
+        #self._scVal = np.zeros(((self.winWidth/self.gridSize),(self.winHeight/self.gridSize)))
+        #_nSquare = ((self.winHeight/self.gridSize)-2)*((self.winWidth/self.gridSize)-2)	
+	textfile2=open('intersectionpoint.dat',"w")
+        textfile2.write('#x  y \n')
+        self.compSval2()
         self.compSval()
 	area2 = float(0.0)
 	area1o3 = float(0.0)
@@ -172,15 +234,12 @@ class MarchingSquareHandler:
                     if len(isSig[1]) > 1: #two point Singularity
                         p1 = _vert[isSig[1][0]]
                         p2 = _vert[isSig[1][1]]
-			#print "two point singularity"
-			#print p1
-			#print p2
+			print "two point singularity"
+			print p1
+			print p2	
 		    	area2 = area2 + float((1.0/2.0) * self.gridSize * self.gridSize)
-			#if p1 <= p2 :
-			#    tmmp = p1
-			#else :
-			#    tmmp = p2
-		    	#area2 = area2 + float((1.0/2.0) * self.gridSize * tmmp)
+		    	#aa = float((1.0/2.0) * self.gridSize * self.gridSize)
+			#print aa
                     else: #one point Singularity
                         #check if other intersection exists
                         intPoint = self.getIntersects(_sv)
@@ -192,17 +251,26 @@ class MarchingSquareHandler:
                             p1 =self.intersectionPoint(_vert[_i1[0]],_vert[_i1[1]],self.isovalue,_sv[_i1[0]],_sv[_i1[1]])
                             p2 = _vert[isSig[1][0]]
 			#print "one point singularity"	
-			#print p1
-			#print p2
-                    	area1o3 = area1o3 + float((1.0/2.0)*(self.gridSize/2.0)*((2*(self.gridSize)**2)**0.5))
-                    	#area1o3 = area1o3 + float((1.0/2.0)*(p1)*(p2))
+                    	area1o3 = area1o3 + float((1.0/2.0)*(self.gridSize/2.0)*(self.gridSize/2.0))
+                    	#aa = float((1.0/2.0)*(self.gridSize/2.0)*((2*(self.gridSize)**2)**0.5))
+                    	#print aa
+			#area1o3 = area1o3 + float((1.0/2.0)*(p1)*(p2))
                 else:
                     [_i1,_i2]=self.getIntersects(_sv)
                     p1 =self.intersectionPoint(_vert[_i1[0]],_vert[_i1[1]],self.isovalue,_sv[_i1[0]],_sv[_i1[1]])
                     p2=self.intersectionPoint(_vert[_i2[0]],_vert[_i2[1]],self.isovalue,_sv[_i2[0]],_sv[_i2[1]])
                     area1o3 = area1o3 + float((self.gridSize**2)-((1.0/2.0)*(self.gridSize/2.0)*((2*(self.gridSize)**2)**0.5)))
-                    #area1o3 = area1o3 + float((self.gridSize**2)-((1.0/2.0)*(p1)*(p2)))
+                    #aa = float((self.gridSize**2)-((1.0/2.0)*(self.gridSize/2.0)*((2*(self.gridSize)**2)**0.5)))
+		    #print aa
+                    #print "else"
+		    #area1o3 = area1o3 + float((self.gridSize**2)-((1.0/2.0)*(p1)*(p2)))
                 self.linelist.append([p1,p2])
+		#print("point of intersections")
+		#print(p1, p2)
+		posline2 = '{0} {1} \n'.format(p1[0],p1[1])
+		posline3 = '{0} {1} \n'.format(p2[0],p2[1])
+                textfile2.write(posline2)
+		textfile2.write(posline3)
         #output to screen area and number of squares 
 	print "Number of full squares:"
 	print cfull
@@ -212,10 +280,20 @@ class MarchingSquareHandler:
 	TParea = area2 + area1o3 
 	TParea = float(TParea)
  	print TParea
-#	print "Number of partial squares with 1:"
-#	print cpart1
-#	print "Number of partial squares with 2:"
-#	print cpart2
-#	print "Number of partial squares with 3:"
-#	print cpart3
+	#print "Number of partial squares with 1:"
+	#print cpart1
+	#print "Number of partial squares with 2:"
+	#print cpart2
+	#print "Number of partial squares with 3:"
+	#print cpart3
         return cfull, cpart, TParea
+
+
+    #Computes the line list
+    #def compute2(self):
+        #self._scVal = np.zeros(((self.winWidth/self.gridSize)+1,(self.winHeight/self.gridSize)+1))
+        #_nSquare = ((self.winHeight/self.gridSize)-1)*((self.winWidth/self.gridSize)-1)
+        #self.compSval()
+        #for i in np.arange(0,_nSquare):
+        #    [_sv,_vert] = self.getSquareData(i)
+        #return traparea, trapnum 
