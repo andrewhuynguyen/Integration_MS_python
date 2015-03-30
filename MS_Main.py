@@ -1,7 +1,11 @@
 '''
 Created on Jan 11, 2014
+Author: sushant
+This was a tutorial created by sushant to demostrate the marching squares algorithm.
 
-@author: sushant
+Modified: March 10, 2015
+Author: Andrew Huy Nguyen
+This script was modified to 
 '''
 
 from OpenGL.GL import *
@@ -9,6 +13,8 @@ from OpenGL.GLUT import *
 from OpenGL.GLU import *
 import sys
 from MarchingSquare import *
+import time
+import math
 
 #Globals
 winHeight = 400
@@ -24,10 +30,41 @@ def init():
     msHandler = MarchingSquareHandler()
     
     msHandler.setWindow(winWidth,winHeight)
-    msHandler.setGridSize(10)
-    msHandler.setRadius(150)
+#    msHandler.setGridSize(10)
+#    gsize=raw_input("Give the grid size:(use integer with minimum equal to 1)")
+#    gsize=int(gsize)
+    gsize=raw_input("Give the grid size:")
+    gsize=float(gsize)
+    msHandler.setGridSize(gsize)
+#    msHandler.setGridSize(1)
+    rad=raw_input("Radius: (use 100 for now)")
+    rad=int(rad)
+    msHandler.setRadius(rad)
+#print statement to check inputs and outputs are corrected    
+    print "Grid size:"
+    print gsize
+    print "Total number of squares:"
+    print int((winHeight/gsize)*(winWidth/gsize))
+    print "Radius:"
+    print rad
+    print "Area:"
+    print rad*rad*math.pi
     
-    msHandler.compute()
+    
+    start=time.clock()
+
+    fullsq, partsq, Tpartarea = msHandler.compute()
+
+    end=time.clock()
+    print "Compute Time:"
+    print end - start
+
+    print "Number of Full Squares:"
+    print fullsq
+    print "Number of Partial Squares:"
+    print partsq
+    print "Total area computed by marching squares:"
+    print fullsq*gsize*gsize + Tpartarea 
 
 
 def ReSizeGLScene(Width, Height):
@@ -56,7 +93,7 @@ def DrawGLScene():
     
     if showGrid:
         glBegin(GL_LINES)
-        for i in range(0,400,gridSize):
+        for i in np.arange(0,400,gridSize):
             glVertex2f(i,0)
             glVertex2f(i,400)
             
@@ -83,9 +120,9 @@ def keyPressed(*args):
             showGrid=False
         else:
             showGrid=True
-        
 
 def main():
+
     global window
     
     glutInit(sys.argv)
@@ -105,9 +142,9 @@ def main():
     glutReshapeFunc(ReSizeGLScene)
 
     glutKeyboardFunc(keyPressed)
-
+    
     init()
-
+    
     glutMainLoop()
 
 print "(s) to show/hide grid"
