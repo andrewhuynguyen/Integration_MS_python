@@ -54,6 +54,9 @@ class MarchingSquareHandler:
 	#return r-(2*x)
 	#return r-(x)
 
+#define a broad function using the parameters a
+
+
     #define function 1-cos(r)
     #here return isovalue for each point in marching squares
 
