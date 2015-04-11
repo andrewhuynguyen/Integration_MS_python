@@ -8,6 +8,7 @@ Modified on March 10, 2015
 Author: Andrew Huy Nguyen
 The following algorithm was modified to compute the number of full and partial squares.  Full and partial squares are counted if the value is below 0.  The function/curve (circle) has a postive value in all case execpt for the interface(0) and interior (<0).
 
+Changed how the zeros are handled within the codes. Plus skip the interpolation for these with 2 zeros or 1z_3- or 1z_3+.
 
 '''
 
@@ -280,12 +281,6 @@ class MarchingSquareHandler:
 	TParea = area2 + area1o3 
 	TParea = float(TParea)
  	print TParea
-	#print "Number of partial squares with 1:"
-	#print cpart1
-	#print "Number of partial squares with 2:"
-	#print cpart2
-	#print "Number of partial squares with 3:"
-	#print cpart3
         return cfull, cpart, TParea
 
 
